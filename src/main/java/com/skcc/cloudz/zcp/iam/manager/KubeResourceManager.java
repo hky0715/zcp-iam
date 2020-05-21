@@ -143,7 +143,7 @@ public class KubeResourceManager {
 
 		try {
 			if(!namespaced){
-				return (T) MethodUtils.invokeMethod(api, "list" + kind, pretty, null, null, null, null, null, null, null, null);
+				return (T) MethodUtils.invokeMethod(api, "list" + kind, pretty, null, null, null, null, null, null, null);
 			} else {
 				return (T) MethodUtils.invokeMethod(api, "listNamespaced" + kind, namespace, pretty, null, null, null, null, null, null, null);
 			}

@@ -1,6 +1,6 @@
 package com.skcc.cloudz.zcp.iam.common.model;
 
-import java.util.Date;
+import org.joda.time.DateTime;
 
 import com.google.gson.annotations.SerializedName;
 
@@ -20,7 +20,7 @@ public class V1alpha1NodeMetric {
 	private V1ObjectMeta metadata = null;
 
 	@SerializedName("timestamp")
-	private Date timestamp;
+	private DateTime timestamp;
 
 	@SerializedName("window")
 	private String window;
@@ -83,11 +83,11 @@ public class V1alpha1NodeMetric {
 		this.metadata = metadata;
 	}
 
-	public Date getTimestamp() {
+	public DateTime getTimestamp() {
 		return timestamp;
 	}
 
-	public void setTimestamp(Date timestamp) {
+	public void setTimestamp(DateTime timestamp) {
 		this.timestamp = timestamp;
 	}
 
