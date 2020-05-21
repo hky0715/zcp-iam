@@ -38,7 +38,7 @@ public class KubeAppsManager {
 	public V1DeploymentList getDeploymentList(String namespace) throws ApiException {
 	    V1DeploymentList v1DeploymentList = null;
 		if (StringUtils.isEmpty(namespace)) {
-			v1DeploymentList = api.listDeploymentForAllNamespaces(null, null, null, null, null, pretty, null, null);
+			v1DeploymentList = api.listDeploymentForAllNamespaces(null, null, null, null, pretty, null, null, null);
 		} else {
 			v1DeploymentList = api.listNamespacedDeployment(namespace, pretty, null, null, null, null, null, null,
 					null);

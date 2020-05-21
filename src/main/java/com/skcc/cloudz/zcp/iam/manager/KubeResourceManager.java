@@ -145,7 +145,7 @@ public class KubeResourceManager {
 			if(!namespaced){
 				return (T) MethodUtils.invokeMethod(api, "list" + kind, pretty, null, null, null, null, null, null, null, null);
 			} else {
-				return (T) MethodUtils.invokeMethod(api, "listNamespaced" + kind, namespace, pretty, null, null, null, null, null, null, null, null);
+				return (T) MethodUtils.invokeMethod(api, "listNamespaced" + kind, namespace, pretty, null, null, null, null, null, null, null);
 			}
 		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 			logger.debug("", e);
