@@ -13,8 +13,8 @@ import com.skcc.cloudz.zcp.iam.common.exception.ZcpException;
 import com.skcc.cloudz.zcp.iam.manager.KubeAppsManager;
 
 import io.kubernetes.client.ApiException;
-import io.kubernetes.client.models.V1beta2Deployment;
-import io.kubernetes.client.models.V1beta2DeploymentList;
+import io.kubernetes.client.models.V1Deployment;
+import io.kubernetes.client.models.V1DeploymentList;
 
 @Service
 public class AppsService {
@@ -25,19 +25,18 @@ public class AppsService {
 	@Autowired
 	private KubeAppsManager kubeAppsManager;
 
-	// TODO shoud replace return type from List<String> to V1beta2DeploymentList
 	// The IllegalArgumentException is thrown during json binding
 	public List<String> getDeployments(String namespace) throws ZcpException {
-		V1beta2DeploymentList v1beta2DeploymentList = null;
+		V1DeploymentList v1DeploymentList = null;
 		try {
-			v1beta2DeploymentList = kubeAppsManager.getDeploymentList(namespace);
+		    v1DeploymentList = kubeAppsManager.getDeploymentList(namespace);
 		} catch (ApiException e) {
 			throw new ZcpException(ZcpErrorCode.DEPOLYMENT_LIST_ERROR, e);
 		}
 		
 		List<String> deployments = new ArrayList<>();
-		for (V1beta2Deployment v1beta2Deployment : v1beta2DeploymentList.getItems()) {
-			deployments.add(v1beta2Deployment.getMetadata().getName());
+		for (V1Deployment v1Deployment : v1DeploymentList.getItems()) {
+			deployments.add(v1Deployment.getMetadata().getName());
 		}
 
 		return deployments;

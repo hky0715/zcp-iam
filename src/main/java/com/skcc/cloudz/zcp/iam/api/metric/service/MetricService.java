@@ -51,6 +51,9 @@ import io.kubernetes.client.ApiException;
 import io.kubernetes.client.custom.Quantity;
 import io.kubernetes.client.models.V1ClusterRoleBinding;
 import io.kubernetes.client.models.V1Container;
+import io.kubernetes.client.models.V1Deployment;
+import io.kubernetes.client.models.V1DeploymentCondition;
+import io.kubernetes.client.models.V1DeploymentList;
 import io.kubernetes.client.models.V1Namespace;
 import io.kubernetes.client.models.V1NamespaceList;
 import io.kubernetes.client.models.V1Node;
@@ -63,9 +66,6 @@ import io.kubernetes.client.models.V1ResourceQuotaList;
 import io.kubernetes.client.models.V1ResourceQuotaStatus;
 import io.kubernetes.client.models.V1RoleBinding;
 import io.kubernetes.client.models.V1RoleBindingList;
-import io.kubernetes.client.models.V1beta2Deployment;
-import io.kubernetes.client.models.V1beta2DeploymentCondition;
-import io.kubernetes.client.models.V1beta2DeploymentList;
 
 @Service
 public class MetricService {
@@ -393,19 +393,19 @@ public class MetricService {
 	}
 
 	public DeploymentsStatusMetricsVO getDeploymentsStatusMetrics(String namespace) throws ZcpException {
-		V1beta2DeploymentList deploymentList = null;
+		V1DeploymentList deploymentList = null;
 		try {
 			deploymentList = kubeAppsManager.getDeploymentList(namespace);
 		} catch (ApiException e) {
 			throw new ZcpException(ZcpErrorCode.DEPLOYMENT_LIST_ERROR, e);
 		}
 
-		List<V1beta2Deployment> deployments = deploymentList.getItems();
+		List<V1Deployment> deployments = deploymentList.getItems();
 		Map<DeploymentStatus, DeploymentStatusMetric> statuesMetrics = getDeploymentsStatusMap();
 
-		for (V1beta2Deployment deployment : deployments) {
-			List<V1beta2DeploymentCondition> conditions = deployment.getStatus().getConditions();
-			for (V1beta2DeploymentCondition condition : conditions) {
+		for (V1Deployment deployment : deployments) {
+			List<V1DeploymentCondition> conditions = deployment.getStatus().getConditions();
+			for (V1DeploymentCondition condition : conditions) {
 				if (condition.getType().equals(DeploymentStatus.STATUS_CONDITION_TYPE)) {
 					if (condition.getStatus().equals("True")) {
 						DeploymentStatusMetric dsm = statuesMetrics.get(DeploymentStatus.Available);

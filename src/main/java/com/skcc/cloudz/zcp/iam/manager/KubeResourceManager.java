@@ -1,7 +1,5 @@
 package com.skcc.cloudz.zcp.iam.manager;
 
-import java.io.IOException;
-import java.io.StringWriter;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -10,16 +8,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import com.fatboyindustrial.gsonjodatime.Converters;
-import com.google.common.collect.HashBasedTable;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-import com.google.common.collect.Table;
-import com.google.common.collect.Table.Cell;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.skcc.cloudz.zcp.iam.manager.client.ServiceAccountApiKeyAuth;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -32,15 +20,25 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ReflectionUtils;
 
+import com.fatboyindustrial.gsonjodatime.Converters;
+import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import com.google.common.collect.Table;
+import com.google.common.collect.Table.Cell;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.skcc.cloudz.zcp.iam.manager.client.ServiceAccountApiKeyAuth;
+
 import io.kubernetes.client.ApiClient;
 import io.kubernetes.client.ApiException;
-import io.kubernetes.client.apis.AppsV1beta1Api;
+import io.kubernetes.client.apis.AppsV1Api;
 import io.kubernetes.client.apis.AutoscalingV1Api;
 import io.kubernetes.client.apis.BatchV1Api;
 import io.kubernetes.client.apis.BatchV1beta1Api;
 import io.kubernetes.client.apis.CoreV1Api;
-import io.kubernetes.client.apis.ExtensionsV1beta1Api;
 import io.kubernetes.client.apis.NetworkingV1Api;
+import io.kubernetes.client.apis.PolicyV1beta1Api;
 import io.kubernetes.client.apis.RbacAuthorizationV1Api;
 import io.kubernetes.client.apis.StorageV1Api;
 import io.kubernetes.client.auth.Authentication;
@@ -74,12 +72,12 @@ public class KubeResourceManager {
 		// Create Api Object for each non CoreApi
 		Object[] apis = {
 		    new CoreV1Api(this.client),
-			new AppsV1beta1Api(this.client),
+			new AppsV1Api(this.client),
 			new AutoscalingV1Api(this.client),
 			new BatchV1beta1Api(this.client),
 			new BatchV1Api(this.client),
-			new ExtensionsV1beta1Api(this.client),
 			new NetworkingV1Api(this.client),
+			new PolicyV1beta1Api(this.client),
 			new RbacAuthorizationV1Api(this.client),
 			new StorageV1Api(this.client)
 		};
