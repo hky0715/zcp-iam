@@ -24,7 +24,13 @@ env:
   yaml: k8s/template
 
 agent:
-  profile: [maven, docker, kubectl]
+  profile: [maven, kubectl]
+  containers:
+  - name: docker
+    image: docker:17-dind
+    ttyEnabled: true
+    command: 'dockerd-entrypoint.sh'
+    privileged: true
   volumes:
   - pvc:zcp-jenkins-mvn-repo: /root/.m2
   serviceAccount: zcp-system-admin
