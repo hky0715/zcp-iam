@@ -286,7 +286,7 @@ public class WebSshHandler2 extends PodExecRelayHanlder {
         }
 
         public Call createWatchCall(CoreV1Api coreV1Api) throws ApiException {
-            Call call = coreV1Api.listSecretForAllNamespacesCall(null, null, null, null, null, null, null, null, Boolean.TRUE, null, null);
+            Call call = coreV1Api.listSecretForAllNamespacesCall(null, null, null, null, null, null, null, Boolean.TRUE, null, null);
             return call;
         }
 
@@ -321,7 +321,7 @@ public class WebSshHandler2 extends PodExecRelayHanlder {
 
         public Call createWatchCall(CoreV1Api coreV1Api) throws ApiException {
             String labelSelector = "app=web-ssh";
-            Call call = coreV1Api.listPodForAllNamespacesCall(null, null, null, labelSelector, null, null, null, null, Boolean.TRUE, null, null);
+            Call call = coreV1Api.listPodForAllNamespacesCall(null, null, labelSelector, null, null, null, null, Boolean.TRUE, null, null);
             return call;
         }
 

@@ -5,14 +5,14 @@ import java.lang.reflect.Type;
 import java.util.Iterator;
 import java.util.List;
 
-import com.google.common.reflect.TypeToken;
-import com.google.gson.JsonSyntaxException;
-import com.squareup.okhttp.Call;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
+import com.google.common.reflect.TypeToken;
+import com.google.gson.JsonSyntaxException;
+import com.squareup.okhttp.Call;
 
 import io.kubernetes.client.ApiClient;
 import io.kubernetes.client.ApiException;
@@ -57,7 +57,7 @@ public class KubeCoreManager {
 	}
 
 	public V1Pod createPod(String namespace, V1Pod body) throws ApiException {
-		return api.createNamespacedPod(namespace, body, pretty);
+		return api.createNamespacedPod(namespace, body, pretty, null, null);
 	}
 
 	public V1Pod getPod(String namespace, String name) throws ApiException {
@@ -72,7 +72,7 @@ public class KubeCoreManager {
 		 * https://github.com/kubernetes-client/java/issues/86#issuecomment-334981383
 		 * CoreV1Api.deleteNamespacedPodWithHttpInfo(...)
 		 */
-		Call call = api.deleteNamespacedPodCall(name, namespace, deleteOptions, pretty, null, null, null, null, null);
+		Call call = api.deleteNamespacedPodCall(name, namespace, pretty, deleteOptions, null, null, null, null, null, null);
         Type localVarReturnType = new TypeToken<V1Pod>(){}.getType();
 		ApiResponse<V1Pod> resp = client.execute(call, localVarReturnType);
 		return resp.getData();
@@ -81,7 +81,7 @@ public class KubeCoreManager {
 
 	public V1ServiceAccount createServiceAccount(String namespace, V1ServiceAccount serviceAccount)
 			throws ApiException {
-		return api.createNamespacedServiceAccount(namespace, serviceAccount, pretty);
+		return api.createNamespacedServiceAccount(namespace, serviceAccount, pretty, null, null);
 	}
 
 	public V1ServiceAccount getServiceAccount(String namespace, String serviceAccountName) throws ApiException {
@@ -90,23 +90,23 @@ public class KubeCoreManager {
 
 	public V1ServiceAccount editServiceAccount(String namespace, String serviceAccountName,
 			V1ServiceAccount serviceAccount) throws ApiException {
-		return api.replaceNamespacedServiceAccount(serviceAccountName, namespace, serviceAccount, pretty);
+		return api.replaceNamespacedServiceAccount(serviceAccountName, namespace, serviceAccount, pretty, null, null);
 	}
 
 	public V1Status deleteServiceAccount(String namespace, String serviceAccountName) throws ApiException {
 		V1DeleteOptions deleteOptions = new V1DeleteOptions();
 		deleteOptions.setGracePeriodSeconds(0l);
-		return api.deleteNamespacedServiceAccount(serviceAccountName, namespace, deleteOptions, pretty, null, null,
-				null);
+		return api.deleteNamespacedServiceAccount(serviceAccountName, namespace, pretty, deleteOptions, null, null,
+				null, null);
 	}
 
 	public V1Status deleteServiceAccountListByUsername(String namespace, String username) throws ApiException {
-		return api.deleteCollectionNamespacedServiceAccount(namespace, pretty, null, null, null,
+		return api.deleteCollectionNamespacedServiceAccount(namespace, pretty, null, null,
 				ResourcesLabelManager.getSystemUsernameLabelSelector(username), null, null, null, null);
 	}
 
 	public V1ServiceAccountList getServiceAccountListByUsername(String namespace, String username) throws ApiException {
-		return api.listNamespacedServiceAccount(namespace, pretty, null, null, null,
+		return api.listNamespacedServiceAccount(namespace, pretty, null, null, 
 				ResourcesLabelManager.getSystemUsernameLabelSelector(username), null, null, null, null);
 	}
 
@@ -115,7 +115,7 @@ public class KubeCoreManager {
 	}
 
 	public V1SecretList getSecretList(String namespace, List<String> types) throws ApiException {
-		V1SecretList list = api.listNamespacedSecret(namespace, pretty, null, null, null, null, null, null, null, null);
+		V1SecretList list = api.listNamespacedSecret(namespace, pretty, null, null, null, null, null, null, null);
 		
 		if(types == null || types.isEmpty())
 			return list;
@@ -131,23 +131,22 @@ public class KubeCoreManager {
 	}
 	
 	public V1Secret createSecret(String namespace, V1Secret secret) throws ApiException {
-		return api.createNamespacedSecret(namespace, secret, pretty);
+		return api.createNamespacedSecret(namespace, secret, pretty, null, null);
 	}
 
 	public V1Status deleteSecret(String namespace, String secretName) throws ApiException {
 		V1DeleteOptions deleteOptions = new V1DeleteOptions();
 		deleteOptions.setGracePeriodSeconds(0l);
-		return api.deleteNamespacedSecret(secretName, namespace, deleteOptions, pretty, null, null, null);
+		return api.deleteNamespacedSecret(secretName, namespace, pretty, deleteOptions, null, null, null, null);
 	}
 
 	public V1NamespaceList getNamespaceList() throws ApiException {
 		String labelSelector = ResourcesLabelManager.getSystemLabelSelector();
-		return api.listNamespace(pretty, null, null, null, labelSelector, null, null,
-				null, null);
+		return api.listNamespace(pretty, null, null, labelSelector, null, null, null, null);
 	}
 
 	public V1Namespace createNamespace(String namespaceName, V1Namespace namespace) throws ApiException {
-		return api.createNamespace(namespace, pretty);
+		return api.createNamespace(namespace, pretty, null, null);
 	}
 
 	public V1Namespace getNamespace(String namespace) throws ApiException {
@@ -155,11 +154,11 @@ public class KubeCoreManager {
 	}
 
 	public V1Namespace editNamespace(String quotaName, V1Namespace namespace) throws ApiException {
-		return api.replaceNamespace(quotaName, namespace, pretty);
+		return api.replaceNamespace(quotaName, namespace, pretty, null, null);
 	}
 
 	public V1Namespace replaceNamespace(String namespaceName, V1Namespace namespace) throws ApiException {
-		return api.replaceNamespace(namespaceName, namespace, pretty);
+		return api.replaceNamespace(namespaceName, namespace, pretty, null, null);
 	}
 
 	public V1Status deleteNamespace(String namespace) throws ApiException {
@@ -168,7 +167,7 @@ public class KubeCoreManager {
 
 		V1Status status = null;
 		try {
-			status = api.deleteNamespace(namespace, deleteOptions, pretty, null, null, null);
+			status = api.deleteNamespace(namespace, pretty, deleteOptions, null, null, null, null);
 		} catch (JsonSyntaxException e) {
 			if (e.getCause() instanceof IllegalStateException) {
 				// TODO we shoud check why exception is thrown??
@@ -184,11 +183,11 @@ public class KubeCoreManager {
 	}
 
 	public V1LimitRangeList getLimitRanges(String namespace) throws ApiException {
-		return api.listNamespacedLimitRange(namespace, pretty, null, null, null, null, null, null, null, null);
+		return api.listNamespacedLimitRange(namespace, pretty, null, null, null, null, null, null, null);
 	}
 
 	public V1LimitRange createLimitRange(String namespace, V1LimitRange limitRange) throws ApiException {
-		return api.createNamespacedLimitRange(namespace, limitRange, pretty);
+		return api.createNamespacedLimitRange(namespace, limitRange, pretty, null, null);
 	}
 
 	public V1LimitRange getLimitRange(String namespace, String limitRangeName) throws ApiException {
@@ -197,26 +196,26 @@ public class KubeCoreManager {
 
 	public V1LimitRange editLimitRange(String namespace, String limitRangeName, V1LimitRange limitRange)
 			throws ApiException {
-		return api.replaceNamespacedLimitRange(limitRangeName, namespace, limitRange, pretty);
+		return api.replaceNamespacedLimitRange(limitRangeName, namespace, limitRange, pretty, null, null);
 	}
 
 	public V1Status deleteLimitRange(String namespace, String limitRangeName) throws ApiException {
 		V1DeleteOptions deleteOptions = new V1DeleteOptions();
 		deleteOptions.setGracePeriodSeconds(0l);
-		return api.deleteNamespacedLimitRange(limitRangeName, namespace, deleteOptions, pretty, null, null, null);
+		return api.deleteNamespacedLimitRange(limitRangeName, namespace, pretty, deleteOptions, null, null, null, null);
 	}
 
 	public V1ResourceQuotaList getResourceQuotaList(String namespace) throws ApiException {
-		return api.listNamespacedResourceQuota(namespace, pretty, null, null, null, null, null, null, null, null);
+		return api.listNamespacedResourceQuota(namespace, pretty, null, null, null, null, null, null, null);
 	}
 
 	public V1ResourceQuota createResourceQuota(String namespace, V1ResourceQuota quota) throws ApiException {
-		return api.createNamespacedResourceQuota(namespace, quota, pretty);
+		return api.createNamespacedResourceQuota(namespace, quota, pretty, null, null);
 	}
 
 	public V1ResourceQuota editResourceQuota(String namespace, String quotaName, V1ResourceQuota quota)
 			throws ApiException {
-		return api.replaceNamespacedResourceQuota(quotaName, namespace, quota, pretty);
+		return api.replaceNamespacedResourceQuota(quotaName, namespace, quota, pretty, null, null);
 	}
 
 	public V1ResourceQuota getResourceQuota(String namespace, String quotaName) throws ApiException {
@@ -224,21 +223,21 @@ public class KubeCoreManager {
 	}
 
 	public V1ResourceQuotaList getAllResourceQuotaList() throws ApiException {
-		return api.listResourceQuotaForAllNamespaces(null, null, null, null, null, pretty, null, null, null);
+		return api.listResourceQuotaForAllNamespaces(null, null, null, null, pretty, null, null, null);
 	}
 
 	public V1Status deleteResourceQuota(String namespace, String resourceQuotaName) throws ApiException {
 		V1DeleteOptions deleteOptions = new V1DeleteOptions();
 		deleteOptions.setGracePeriodSeconds(0l);
-		return api.deleteNamespacedResourceQuota(resourceQuotaName, namespace, deleteOptions, pretty, null, null, null);
+		return api.deleteNamespacedResourceQuota(resourceQuotaName, namespace, pretty, deleteOptions, null, null, null, null);
 	}
 
 	public V1NodeList getNodeList() throws ApiException {
-		return api.listNode(pretty, null, null, null, null, null, null, null, null);
+		return api.listNode(pretty, null, null, null, null, null, null, null);
 	}
 
 	public V1PodList getAllPodList() throws ApiException {
-		return api.listPodForAllNamespaces(null, null, null, null, null, pretty, null, null, null);
+		return api.listPodForAllNamespaces(null, null, null, null, pretty, null, null, null);
 	}
 
 	public V1PodList getPodListByNode(String nodeName) throws ApiException {
@@ -247,11 +246,11 @@ public class KubeCoreManager {
 		fieldSelector.append(nodeName);
 		fieldSelector.append(",status.phase!=Failed,status.phase!=Succeeded");
 
-		return api.listPodForAllNamespaces(null, fieldSelector.toString(), null, null, null, pretty, null, null, null);
+		return api.listPodForAllNamespaces(null, fieldSelector.toString(), null, null, pretty, null, null, null);
 	}
 
 	public V1PodList getPodListByNamespace(String namespace) throws ApiException {
-		return api.listNamespacedPod(namespace, pretty, null, null, null, null, null, null, null, null);
+		return api.listNamespacedPod(namespace, pretty, null, null, null, null, null, null, null);
 	}
 
 }

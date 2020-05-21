@@ -319,7 +319,7 @@ public class WebSshHandler4 extends PodExecRelayHanlder implements EndpointSourc
     public void watchSecret() {
         try {
             // V1SecretList list = resourceManager.getList(defaultNamespace, "secret");
-            V1SecretList list = coreApi.listNamespacedSecret(defaultNamespace, "true", null, null, null, null, null, null, null, null);
+            V1SecretList list = coreApi.listNamespacedSecret(defaultNamespace, "true", null, null, null, null, null, null, null);
             for (V1Secret secret : list.getItems()) {
                 String ns = secret.getMetadata().getNamespace();
                 String name = secret.getMetadata().getName();
@@ -377,7 +377,7 @@ public class WebSshHandler4 extends PodExecRelayHanlder implements EndpointSourc
         final String labelSelector = "app=web-ssh";
         try {
             // V1PodList list = resourceManager.getList(defaultNamespace, "pod", labelSelector);
-            V1PodList list = coreApi.listNamespacedPod("", "true", null, null, null, labelSelector, null, null, null, null);
+            V1PodList list = coreApi.listNamespacedPod("", "true", null, null, labelSelector, null, null, null, null);
             for (V1Pod pod : list.getItems()) {
                 String ns = pod.getMetadata().getNamespace();
                 String name = pod.getMetadata().getName();

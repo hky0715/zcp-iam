@@ -50,7 +50,7 @@ public class KubeRbacAuthzManager {
 	}
 
 	public V1ClusterRole createClusterRole(V1ClusterRole clusterRole) throws ApiException {
-		return api.createClusterRole(clusterRole, pretty);
+		return api.createClusterRole(clusterRole, pretty, null, null);
 	}
 
 	public V1ClusterRoleList getClusterRoles(String type) throws ApiException {
@@ -61,7 +61,7 @@ public class KubeRbacAuthzManager {
 			labelSelector = ResourcesLabelManager.getSystemNamespaceRoleLabelSelector();
 		}
 
-		return api.listClusterRole(pretty, null, null, null, labelSelector, null, null, null, null);
+		return api.listClusterRole(pretty, null, null, labelSelector, null, null, null, null);
 	}
 	
 	public V1ClusterRole addClusterRoleLabel(String clusterRoleName, Map<String, String> newLabel) throws ApiException {
@@ -74,7 +74,7 @@ public class KubeRbacAuthzManager {
 		// use "api.patchClusterRole(...)"
 		// - https://github.com/kubernetes-client/java/issues/263#issuecomment-408806995
 		// - https://github.com/kubernetes-client/java/issues/263#issuecomment-408806995
-		return api.replaceClusterRole(clusterRoleName, role, pretty);
+		return api.replaceClusterRole(clusterRoleName, role, pretty, null, null);
 	}
 
 	public V1ClusterRole removeClusterRoleLabel(String clusterRoleName, Map<String, String> newLabel) throws ApiException {
@@ -92,16 +92,16 @@ public class KubeRbacAuthzManager {
 		if(!modified)
 			return role;
 
-		return api.replaceClusterRole(clusterRoleName, role, pretty);
+		return api.replaceClusterRole(clusterRoleName, role, pretty, null, null);
 	}
 
 	public V1ClusterRoleBindingList getClusterRoleBindingList() throws ApiException {
-		return api.listClusterRoleBinding(pretty, null, null, null, ResourcesLabelManager.getSystemUserLabelSelector(),
+		return api.listClusterRoleBinding(pretty, null, null, ResourcesLabelManager.getSystemUserLabelSelector(),
 				null, null, null, null);
 	}
 
 	public V1ClusterRoleBindingList getClusterRoleBindingListByUsername(String username) throws ApiException {
-		return api.listClusterRoleBinding(pretty, null, null, null,
+		return api.listClusterRoleBinding(pretty, null, null, 
 				ResourcesLabelManager.getSystemUsernameLabelSelector(username), null, null, null, null);
 	}
 
@@ -110,42 +110,42 @@ public class KubeRbacAuthzManager {
 	}
 
 	public V1ClusterRoleBinding createClusterRoleBinding(V1ClusterRoleBinding clusterrolebinding) throws ApiException {
-		return api.createClusterRoleBinding(clusterrolebinding, pretty);
+		return api.createClusterRoleBinding(clusterrolebinding, pretty, null, null);
 	}
 
 	public V1Status deleteClusterRoleBinding(String clusterRoleBindingName) throws ApiException {
 		V1DeleteOptions deleteOptions = new V1DeleteOptions();
 		deleteOptions.setGracePeriodSeconds(0l);
-		return api.deleteClusterRoleBinding(clusterRoleBindingName, deleteOptions, pretty, null, null, null);
+		return api.deleteClusterRoleBinding(clusterRoleBindingName, pretty, deleteOptions, null, null, null, null);
 	}
 
 	public V1Status deleteClusterRoleBindingByUsername(String username) throws ApiException {
-		return api.deleteCollectionClusterRoleBinding(pretty, null, null, null,
+		return api.deleteCollectionClusterRoleBinding(pretty, null, null, 
 				ResourcesLabelManager.getSystemUsernameLabelSelector(username), null, null, null, null);
 	}
 
 	public V1ClusterRoleBinding editClusterRoleBinding(String clusterRoleBindingName,
 			V1ClusterRoleBinding clusterrolebinding) throws ApiException {
-		return api.replaceClusterRoleBinding(clusterRoleBindingName, clusterrolebinding, pretty);
+		return api.replaceClusterRoleBinding(clusterRoleBindingName, clusterrolebinding, pretty, null, null);
 	}
 
 	public V1RoleBindingList getRoleBindingListAllNamespaces() throws ApiException {
-		return api.listRoleBindingForAllNamespaces(null, null, null, ResourcesLabelManager.getSystemUserLabelSelector(),
+		return api.listRoleBindingForAllNamespaces(null, null, ResourcesLabelManager.getSystemUserLabelSelector(),
 				null, pretty, null, null, null);
 	}
 
 	public V1RoleBindingList getRoleBindingListByNamespace(String namespace) throws ApiException {
-		return api.listNamespacedRoleBinding(namespace, pretty, null, null, null,
+		return api.listNamespacedRoleBinding(namespace, pretty, null, null, 
 				ResourcesLabelManager.getSystemUserLabelSelector(), null, null, null, null);
 	}
 
 	public V1RoleBindingList getRoleBindingListByUsername(String username) throws ApiException {
-		return api.listRoleBindingForAllNamespaces(null, null, null,
+		return api.listRoleBindingForAllNamespaces(null, null,
 				ResourcesLabelManager.getSystemUsernameLabelSelector(username), null, pretty, null, null, null);
 	}
 
 	public V1RoleBinding createRoleBinding(String namespace, V1RoleBinding rolebinding) throws ApiException {
-		return api.createNamespacedRoleBinding(namespace, rolebinding, pretty);
+		return api.createNamespacedRoleBinding(namespace, rolebinding, pretty, null, null);
 	}
 
 	public V1RoleBinding getRoleBindingByUserName(String namespace, String username) throws ApiException {
@@ -154,16 +154,16 @@ public class KubeRbacAuthzManager {
 
 	public V1RoleBinding replaceRoleBinding(String namespace, String roleBindingName, V1RoleBinding rolebinding)
 			throws ApiException {
-		return api.replaceNamespacedRoleBinding(roleBindingName, namespace, rolebinding, pretty);
+		return api.replaceNamespacedRoleBinding(roleBindingName, namespace, rolebinding, pretty, null, null);
 	}
 
 	public V1Status deleteRoleBinding(String namespace, String roleBindingName, V1DeleteOptions deleteOptions)
 			throws ApiException {
-		return api.deleteNamespacedRoleBinding(roleBindingName, namespace, deleteOptions, pretty, null, null, null);
+		return api.deleteNamespacedRoleBinding(roleBindingName, namespace, pretty, deleteOptions, null, null, null, null);
 	}
 
 	public V1Status deleteRoleBindingListByUsername(String namespace, String username) throws ApiException {
-		return api.deleteCollectionNamespacedRoleBinding(namespace, pretty, null, null, null,
+		return api.deleteCollectionNamespacedRoleBinding(namespace, pretty, null, null, 
 				ResourcesLabelManager.getSystemUsernameLabelSelector(username), null, null, null, null);
 	}
 }

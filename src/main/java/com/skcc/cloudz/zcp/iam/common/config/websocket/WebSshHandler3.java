@@ -320,7 +320,7 @@ public class WebSshHandler3 extends PodExecRelayHanlder implements EndpointSourc
     public void watchSecret() {
         Watch<V1Secret> watch = null;
         try {
-            Call call = coreV1Api.listSecretForAllNamespacesCall(null, null, null, null, null, null, null, null, Boolean.TRUE, null, null);
+            Call call = coreV1Api.listSecretForAllNamespacesCall(null, null, null, null, null, null, null, Boolean.TRUE, null, null);
             watch = Watch.createWatch(client, call, TYPE_SECRET);
             doWatch(watch, TYPE_SECRET);
         } catch (Exception e) {
@@ -336,7 +336,7 @@ public class WebSshHandler3 extends PodExecRelayHanlder implements EndpointSourc
         Watch<V1Pod> watch = null;
         try {
             String labelSelector = "app=web-ssh";
-            Call call = coreV1Api.listPodForAllNamespacesCall(null, null, null, labelSelector, null, null, null, null, Boolean.TRUE, null, null);
+            Call call = coreV1Api.listPodForAllNamespacesCall(null, null, labelSelector, null, null, null, null, Boolean.TRUE, null, null);
 
             watch = Watch.createWatch(client, call, TYPE_POD);
             doWatch(watch, TYPE_POD);
