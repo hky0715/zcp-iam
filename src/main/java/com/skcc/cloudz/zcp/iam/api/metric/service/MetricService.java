@@ -110,10 +110,11 @@ public class MetricService {
 								.collect(Collectors.joining(","));
 
 			// Map<String, Quantity> capacity = node.getStatus().getCapacity();
-			logger.debug("Node name is {}", nodeName);
-			logger.debug("Node role is {}", labels.get("role"));
-			logger.debug("allocatable memory is {}", allocatableCpu);
-			logger.debug("allocatable cpu is {}", ((Quantity) allocatable.get("memory")).getNumber());
+			
+//			logger.debug("Node name is {}", nodeName);
+//			logger.debug("Node role is {}", labels.get("role"));
+//			logger.debug("allocatable memory is {}", allocatableCpu);
+//			logger.debug("allocatable cpu is {}", ((Quantity) allocatable.get("memory")).getNumber());
 
 			V1PodList pods = getPodListByNode(nodeName);
 
@@ -121,51 +122,93 @@ public class MetricService {
 			double totalMemRequests = 0;
 			double totalCpuLimits = 0;
 			double totalMemLimits = 0;
+
+			StringBuffer debugLog = new StringBuffer();
+			String podLogFormat = "    %-20s %-40s  %-28s %-10s %-10s %-10s %-10s%n";
+			if (logger.isDebugEnabled()) {
+			    debugLog.append("\n-----------------------------------------\n");
+			    debugLog.append(String.format("Node Resource Status for %s (%s)\n", nodeName, roles));
+			    debugLog.append(String.format("  Node Allocatable - CPU : %s, MEM : %s\n", allocatableCpu, allocatableMem));
+			    debugLog.append("  Pod container resources\n");
+			    debugLog.append(String.format(podLogFormat, "Namespace", "Pod", "Container", "CPU Req", "CPU Limit", "Mem Req", "Mem Limit"));
+			    debugLog.append(String.format(podLogFormat, "---------", "---", "---------", "-------", "---------", "-------", "---------"));
+			}
+			
 			for (V1Pod pod : pods.getItems()) {
 				List<V1Container> containers = pod.getSpec().getContainers();
 				for (V1Container container : containers) {
 					Map<String, Quantity> requests = container.getResources().getRequests();
+					Quantity cpuRequests = null, 
+					        memoryRequests = null, 
+					        cpulimits = null, 
+					        memorylimits = null;
 					if (requests != null) {
-						Quantity cpuRequests = requests.get("cpu");
+					    cpuRequests = requests.get("cpu");
 						if (cpuRequests != null) {
-							logger.debug("cpu request is {}", cpuRequests.toSuffixedString());
+//							logger.debug("cpu request is {}", cpuRequests.toSuffixedString());
 							totalCpuRequests += cpuRequests.getNumber().doubleValue();
 						}
-						Quantity memoryRequests = requests.get("memory");
+						memoryRequests = requests.get("memory");
 						if (memoryRequests != null) {
-							logger.debug("memory request is {}", memoryRequests.toSuffixedString());
+//							logger.debug("memory request is {}", memoryRequests.toSuffixedString());
 							totalMemRequests += memoryRequests.getNumber().doubleValue();
 						}
 					}
 
 					Map<String, Quantity> limits = container.getResources().getLimits();
 					if (limits != null) {
-						Quantity cpulimits = limits.get("cpu");
+						cpulimits = limits.get("cpu");
 						if (cpulimits != null) {
-							logger.debug("cpu limits is {}", cpulimits.toSuffixedString());
+//							logger.debug("cpu limits is {}", cpulimits.toSuffixedString());
 							totalCpuLimits += cpulimits.getNumber().doubleValue();
 						}
-						Quantity memorylimits = limits.get("memory");
+						memorylimits = limits.get("memory");
 						if (memorylimits != null) {
-							logger.debug("cpu limits is {}", memorylimits.toSuffixedString());
+//							logger.debug("memory limits is {}", memorylimits.toSuffixedString());
 							totalMemLimits += memorylimits.getNumber().doubleValue();
 						}
 					}
+					if (logger.isDebugEnabled()) {
+					    debugLog.append(String.format(podLogFormat, 
+					            pod.getMetadata().getNamespace(), 
+					            pod.getMetadata().getName(),
+					            container.getName(),
+					            quantityToString(cpuRequests), 
+					            quantityToString(cpulimits), 
+					            quantityToString(memoryRequests), 
+					            quantityToString(memorylimits)));
+					}
 				}
 			}
+			
+			if (logger.isDebugEnabled()) {
+			    String totalLogFormat = "    %-12s %-20s %-20s%n";
+			    debugLog.append("  Total allocated resources\n");
+			    debugLog.append(String.format(totalLogFormat, "Resource", "Requests", "Limits"));
+			    debugLog.append(String.format(totalLogFormat, "--------", "--------", "------"));
+			    
+			    debugLog.append(String.format(totalLogFormat, "CPU", 
+			            String.format("%.2f m", totalCpuRequests * 1000) + " (" + NumberUtils.percent(totalCpuRequests, allocatableCpu.doubleValue()) + "%)",
+			            String.format("%.2f m", totalCpuLimits * 1000) + " (" + NumberUtils.percent(totalCpuLimits, allocatableCpu.doubleValue()) + "%)"));
+			    debugLog.append(String.format(totalLogFormat, "Memory", 
+			            String.format("%.2f Mi", totalMemRequests / 1024 / 1024) + " (" + NumberUtils.percent(totalMemRequests, allocatableMem.doubleValue()) + "%)",
+			            String.format("%.2f Mi", totalMemLimits / 1024 / 1024) + " (" + NumberUtils.percent(totalMemLimits, allocatableMem.doubleValue()) + "%)"));
+			    debugLog.append("-----------------------------------------");
+			    logger.debug(debugLog.toString());
+			}
 
-			logger.debug("total cpu requests is {}", totalCpuRequests);
-			logger.debug("total mem requests is {}", totalMemRequests);
-			logger.debug("total cpu limits is {}", totalCpuLimits);
-			logger.debug("total mem limits is {}", totalMemLimits);
-
-			logger.debug("CPU Requests = {}, Mem Requests = {}, CPU limits = {}, Mem limits = {}",
-					NumberUtils.percent(totalCpuRequests, allocatableCpu.doubleValue()),
-					NumberUtils.percent(totalMemRequests, allocatableMem.doubleValue()),
-					NumberUtils.percent(totalCpuLimits, allocatableCpu.doubleValue()),
-					NumberUtils.percent(totalMemLimits, allocatableMem.doubleValue()));
-
-			logger.debug("------------------------------------------------");
+//			logger.debug("total cpu requests is {}", totalCpuRequests);
+//			logger.debug("total mem requests is {}", totalMemRequests);
+//			logger.debug("total cpu limits is {}", totalCpuLimits);
+//			logger.debug("total mem limits is {}", totalMemLimits);
+//
+//			logger.debug("CPU Requests = {}, Mem Requests = {}, CPU limits = {}, Mem limits = {}",
+//					NumberUtils.percent(totalCpuRequests, allocatableCpu.doubleValue()),
+//					NumberUtils.percent(totalMemRequests, allocatableMem.doubleValue()),
+//					NumberUtils.percent(totalCpuLimits, allocatableCpu.doubleValue()),
+//					NumberUtils.percent(totalMemLimits, allocatableMem.doubleValue()));
+//
+//			logger.debug("------------------------------------------------");
 
 			ZcpNode zcpNode = new ZcpNode();
 			zcpNode.setNodeName(nodeName);
@@ -196,7 +239,15 @@ public class MetricService {
 
 		return new ZcpNodeList(zcpNodes);
 	}
-
+	
+	private String quantityToString(Quantity quantity) {
+	    if (quantity != null) {
+	        return quantity.toSuffixedString();
+	    }
+	    
+	    return "0";
+	}
+	
 	public ZcpNamespaceList getNamespaces(String userId) throws ZcpException {
 		// check user
 		UserRepresentation userRepresentation = null;
@@ -515,21 +566,21 @@ public class MetricService {
 
 		for (V1Pod pod : pods) {
 			String phase = pod.getStatus().getPhase();
+			
+			PodStatus status = PodStatus.findByPhase(phase);
 
-			for (PodStatus status : PodStatus.values()) {
-				if (StringUtils.equals(phase, status.name())) {
-					PodStatusMetric psm = statuesMetrics.get(status);
-					if (psm != null) {
-						psm.increaseCount();
-					} else {
-						psm = new PodStatusMetric();
-						psm.setStatus(status);
-						psm.setCount(1);
-						statuesMetrics.put(status, psm);
-					}
+			if (status != null) {
+				PodStatusMetric psm = statuesMetrics.get(status);
+				if (psm != null) {
+					psm.increaseCount();
 				} else {
-					logger.warn("This phase(" + phase + ") does not exist in PodStatus. Please check it");
+					psm = new PodStatusMetric();
+					psm.setStatus(status);
+					psm.setCount(1);
+					statuesMetrics.put(status, psm);
 				}
+			} else {
+				logger.warn("This phase(" + phase + ") does not exist in PodStatus. Please check it");
 			}
 		}
 
